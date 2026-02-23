@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internal_issue_tracking_portal/presentation/views/auth/login.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -74,9 +75,9 @@ class _LogoutButton extends StatelessWidget {
           await FirebaseAuth.instance.signOut();
           if (!context.mounted) return;
 
-          Navigator.pushNamedAndRemoveUntil(
+          Navigator.pushAndRemoveUntil(
             context,
-            "/login",
+            MaterialPageRoute(builder: (_) => const LoginPage()),
             (route) => false,
           );
         },
