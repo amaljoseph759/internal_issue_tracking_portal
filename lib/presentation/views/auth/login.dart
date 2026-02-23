@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:internal_issue_tracking_portal/presentation/views/auth/signup.dart';
@@ -26,7 +28,9 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
       );
+      log(e.toString());
     }
+
     setState(() => isLoading = false);
   }
 
