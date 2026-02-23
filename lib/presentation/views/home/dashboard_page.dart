@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:internal_issue_tracking_portal/presentation/views/auth/login.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -7,7 +10,26 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Issue Dashboard")),
+      appBar: AppBar(
+        title: const Text("Issue Dashboard"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: "Logout",
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+
+              if (!context.mounted) return;
+
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+                (route) => false,
+              );
+            },
+          )
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openIssueDialog(context),
         child: const Icon(Icons.add),
@@ -34,14 +56,73 @@ class DashboardPage extends StatelessWidget {
               final issue = issues[index];
 
               return Card(
-                margin: const EdgeInsets.all(10),
-                child: ListTile(
-                  title: Text(issue["issueSummary"]),
-                  subtitle: Text(
-                      "${issue["customer"]} • ${issue["status"]} • ${issue["priority"]}"),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () => _openIssueDialog(context, issue: issue),
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// Priority Indicator
+                      Container(
+                        width: 6,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: _priorityColor(issue["priority"]),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+
+                      /// Issue Content
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /// Issue Summary
+                            Text(
+                              issue["issueSummary"],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+
+                            /// Customer + Technology
+                            Text(
+                              "${issue["customer"]} • ${issue["technology"]}",
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+
+                            /// Status + Priority Chips
+                            Row(
+                              children: [
+                                _statusChip(issue["status"]),
+                                const SizedBox(width: 8),
+                                _priorityChip(issue["priority"]),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      /// Edit Button
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () =>
+                            _openIssueDialog(context, issue: issue),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -49,6 +130,62 @@ class DashboardPage extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  Color _priorityColor(String priority) {
+    switch (priority) {
+      case "Critical":
+        return Colors.red;
+      case "High":
+        return Colors.orange;
+      case "Medium":
+        return Colors.amber;
+      default:
+        return Colors.green;
+    }
+  }
+
+  Widget _priorityChip(String priority) {
+    return Chip(
+      label: Text(
+        priority,
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+      backgroundColor: _priorityColor(priority),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+  }
+
+  Widget _statusChip(String status) {
+    Color color;
+    switch (status) {
+      case "New":
+        color = Colors.blue;
+        break;
+      case "In Progress":
+        color = Colors.orange;
+        break;
+      case "Waiting for Client":
+        color = Colors.purple;
+        break;
+      case "Resolved":
+        color = Colors.green;
+        break;
+      case "Closed":
+        color = Colors.grey;
+        break;
+      default:
+        color = Colors.blueGrey;
+    }
+
+    return Chip(
+      label: Text(
+        status,
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+      backgroundColor: color,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 
