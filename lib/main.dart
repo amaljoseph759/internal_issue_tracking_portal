@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internal_issue_tracking_portal/presentation/views/auth/login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -54,55 +55,9 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
-      themeMode: ThemeMode.system, // change to ThemeMode.dark to test
+      themeMode: ThemeMode.light, // change to ThemeMode.dark to test
 
-      home: const HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Custom Theme Example"),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Welcome Kartik 👋",
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "This UI uses custom ThemeData.",
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text("Click Me"),
-              ),
-              Text(
-                "Hello Kartik",
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text("Click Me"),
-              ),
-            ],
-          ),
-        ),
-      ),
+      home: const LoginPage(),
     );
   }
 }
