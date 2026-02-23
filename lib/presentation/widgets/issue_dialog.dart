@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:internal_issue_tracking_portal/core/utils/id_generator.dart';
 
 class IssueDialog extends StatefulWidget {
   final DocumentSnapshot? issue;
@@ -60,11 +61,13 @@ class _IssueDialogState extends State<IssueDialog> {
     setState(() => _isLoading = true);
 
     final collection = FirebaseFirestore.instance.collection("issues");
+    final assignmentId = IdGenerator.generateAssignmentId();
 
     if (widget.issue == null) {
       final doc = collection.doc();
       await doc.set({
         "issueId": doc.id,
+        "assignmentId": assignmentId,
         "customer": customer,
         "processName": processController.text.trim(),
         "technology": technology,

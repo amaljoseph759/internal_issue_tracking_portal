@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:internal_issue_tracking_portal/core/utils/format_date_time.dart';
 import 'package:internal_issue_tracking_portal/presentation/widgets/common_app_bar.dart';
 import 'package:internal_issue_tracking_portal/presentation/widgets/issue_dialog.dart';
 import 'package:internal_issue_tracking_portal/presentation/widgets/priority_badge.dart';
@@ -116,41 +117,115 @@ class DashboardPage extends StatelessWidget {
         final issue = issues[index];
 
         return Card(
-          elevation: 2,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          color: Colors.white,
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /// TOP ROW (Summary + Priority)
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Text(
                         issue["issueSummary"],
                         style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     PriorityBadge(
                       priority: getPriorityFromString(issue["priority"]),
-                    )
+                    ),
                   ],
                 ),
+
                 const SizedBox(height: 8),
+
+                /// Assignment ID
+                Text(
+                  issue.data().toString().contains("assignmentId")
+                      ? issue["assignmentId"]
+                      : "-",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                /// Customer & Technology
                 Text(
                   "${issue["customer"]} • ${issue["technology"]}",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 13,
+                  ),
                 ),
+
                 const SizedBox(height: 12),
+
+                /// Assigned To
                 Row(
                   children: [
-                    const StatusChip(
-                      status: IssueStatus.inProgress,
+                    const Icon(Icons.person_outline,
+                        size: 16, color: Colors.grey),
+                    const SizedBox(width: 6),
+                    Text(
+                      issue["assignedTo"] ?? "-",
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                /// Dates Section
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today_outlined,
+                        size: 14, color: Colors.grey),
+                    const SizedBox(width: 6),
+                    Text(
+                      "Start: ${formatDateTime(issue["startDate"])}",
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 4),
+
+                Row(
+                  children: [
+                    const Icon(Icons.lock_clock, size: 14, color: Colors.grey),
+                    const SizedBox(width: 6),
+                    Text(
+                      "Closed: ${formatDateTime(issue["closingDate"])}",
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 14),
+
+                /// Bottom Row (Status + Edit)
+                Row(
+                  children: [
+                    StatusChip(
+                      status: getStatusFromString(issue["status"]),
                     ),
                     const Spacer(),
+
+                    /// Edit Button
                     Tooltip(
                       message: "Edit Issue",
                       child: InkWell(
@@ -166,8 +241,9 @@ class DashboardPage extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.blue.withOpacity(0.08),
                             borderRadius: BorderRadius.circular(12),
-                            border:
-                                Border.all(color: Colors.blue.withOpacity(0.2)),
+                            border: Border.all(
+                              color: Colors.blue.withOpacity(0.2),
+                            ),
                           ),
                           child: const Icon(
                             Icons.edit_rounded,
@@ -178,11 +254,80 @@ class DashboardPage extends StatelessWidget {
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
         );
+        // Card(
+        //   color: Colors.white,
+        //   elevation: 2,
+        //   shape:
+        //       RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        //   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        //   child: Padding(
+        //     padding: const EdgeInsets.all(16),
+        //     child: Column(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       children: [
+        //         Row(
+        //           children: [
+        //             Expanded(
+        //               child: Text(
+        //                 issue["issueSummary"],
+        //                 style: const TextStyle(
+        //                     fontSize: 16, fontWeight: FontWeight.bold),
+        //               ),
+        //             ),
+        //             PriorityBadge(
+        //               priority: getPriorityFromString(issue["priority"]),
+        //             )
+        //           ],
+        //         ),
+        //         const SizedBox(height: 8),
+        //         Text(
+        //           "${issue["customer"]} • ${issue["technology"]}",
+        //           style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+        //         ),
+        //         const SizedBox(height: 12),
+        //         Row(
+        //           children: [
+        //             const StatusChip(
+        //               status: IssueStatus.inProgress,
+        //             ),
+        //             const Spacer(),
+        //             Tooltip(
+        //               message: "Edit Issue",
+        //               child: InkWell(
+        //                 borderRadius: BorderRadius.circular(12),
+        //                 onTap: () {
+        //                   showDialog(
+        //                     context: context,
+        //                     builder: (_) => IssueDialog(issue: issue),
+        //                   );
+        //                 },
+        //                 child: Container(
+        //                   padding: const EdgeInsets.all(8),
+        //                   decoration: BoxDecoration(
+        //                     color: Colors.blue.withOpacity(0.08),
+        //                     borderRadius: BorderRadius.circular(12),
+        //                     border:
+        //                         Border.all(color: Colors.blue.withOpacity(0.2)),
+        //                   ),
+        //                   child: const Icon(
+        //                     Icons.edit_rounded,
+        //                     size: 18,
+        //                     color: Colors.blue,
+        //                   ),
+        //                 ),
+        //               ),
+        //             ),
+        //           ],
+        //         )
+        //       ],
+        //     ),
+        //   ),
+        // );
       },
     );
   }
@@ -204,20 +349,6 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  // 🔷 PRIORITY COLOR
-  // Color _priorityColor(String priority) {
-  //   switch (priority) {
-  //     case "Critical":
-  //       return Colors.red;
-  //     case "High":
-  //       return Colors.orange;
-  //     case "Medium":
-  //       return Colors.amber;
-  //     default:
-  //       return Colors.green;
-  //   }
-  // }
-
   IssuePriority getPriorityFromString(String priority) {
     switch (priority) {
       case "Low":
@@ -230,6 +361,23 @@ class DashboardPage extends StatelessWidget {
         return IssuePriority.critical;
       default:
         return IssuePriority.low;
+    }
+  }
+
+  IssueStatus getStatusFromString(String status) {
+    switch (status) {
+      case "New":
+        return IssueStatus.newIssue;
+      case "In Progress":
+        return IssueStatus.inProgress;
+      case "Resolved":
+        return IssueStatus.resolved;
+      case "Closed":
+        return IssueStatus.closed;
+      case "Waiting for Client":
+        return IssueStatus.waitingForClient;
+      default:
+        return IssueStatus.newIssue;
     }
   }
 

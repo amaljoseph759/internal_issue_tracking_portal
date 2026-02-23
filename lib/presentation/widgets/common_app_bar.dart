@@ -83,13 +83,13 @@ class _LogoutButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.08),
+            color: Colors.white.withOpacity(0.08),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.logout_rounded,
             size: 20,
-            color: Colors.red,
+            color: Colors.white,
           ),
         ),
       ),
