@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:internal_issue_tracking_portal/presentation/views/home/dashboard_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -28,19 +29,35 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     setState(() => isLoading = true);
+
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      Navigator.pop(context);
+
+      if (!mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const DashboardPage()),
+        (route) => false,
+      );
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? "Sign up failed")),
+      );
+      log(e.code);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+        const SnackBar(content: Text("Something went wrong")),
       );
       log(e.toString());
     }
-    setState(() => isLoading = false);
+
+    if (mounted) {
+      setState(() => isLoading = false);
+    }
   }
 
   @override
